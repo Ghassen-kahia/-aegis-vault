@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-copy-generated"
+description = "Enables the copy_generated command without any pre-configured scope."
+commands.allow = ["copy_generated"]
+
+[[permission]]
+identifier = "deny-copy-generated"
+description = "Denies the copy_generated command without any pre-configured scope."
+commands.deny = ["copy_generated"]

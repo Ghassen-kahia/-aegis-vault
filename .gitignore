@@ -1,0 +1,15 @@
+/node_modules
+/dist
+/target
+/src-tauri/gen/schemas
+*.aegis
+*.aegis.bak
+*.aegis.tmp
+# Never commit vault data, backups or plaintext exports from other password managers.
+*.aegisbackup
+*.csv
+# Fuzzing output (corpora are regenerated; crash artifacts may hold hostile inputs).
+/fuzz/target
+/fuzz/corpus
+/fuzz/artifacts
+/fuzz/coverage

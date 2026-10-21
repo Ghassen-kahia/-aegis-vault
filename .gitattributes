@@ -1,0 +1,5 @@
+# LF everywhere, on every OS. The generator's wordlist is verified by SHA-256 (AC-G3), so a
+# CRLF checkout would change its hash and fail the build.
+* text=auto eol=lf
+*.png binary
+*.ico binary

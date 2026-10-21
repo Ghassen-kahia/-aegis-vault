@@ -1,0 +1,32 @@
+[package]
+name = "aegis-vault"
+description = "AEGIS VAULT desktop application (Tauri shell around aegis-core)."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+[build-dependencies]
+tauri-build = { version = "2.7", features = [] }
+
+[dependencies]
+aegis-core = { path = "../crates/aegis-core" }
+tauri = { version = "2.12", features = [] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+uuid = { version = "1", features = ["serde"] }
+zeroize = "1.8"
+sha2 = "0.10.8"
+subtle = "2.6"
+arboard = { version = "3.4", default-features = false }
+# Native file dialogs, called from Rust only; the WebView is granted no dialog permissions.
+tauri-plugin-dialog = "2.8"
+# Only one running copy, so two windows can never overwrite each other's saves.
+tauri-plugin-single-instance = "2.5"
+
+[target.'cfg(windows)'.dependencies]
+# Already in the dependency tree via Tauri; used only for session-lock detection (os_lock.rs).
+windows-sys = { version = "0.61", features = ["Win32_System_StationsAndDesktops"] }
+# Same versions Tauri already uses; for WebView2 settings Tauri does not expose (webview.rs).
+webview2-com = "0.39"
+windows-core = "0.62"

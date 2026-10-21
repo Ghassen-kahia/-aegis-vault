@@ -1,0 +1,34 @@
+[workspace]
+resolver = "2"
+members = ["crates/aegis-core", "src-tauri"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80"
+publish = false
+
+# Argon2 and AES are unusably slow without optimisation; optimise them even in
+# debug/test builds so development uses the *real* KDF parameters, not weaker ones.
+[profile.dev.package.argon2]
+opt-level = 3
+[profile.dev.package.blake2]
+opt-level = 3
+[profile.dev.package.aes]
+opt-level = 3
+[profile.dev.package.aes-gcm]
+opt-level = 3
+[profile.dev.package.ghash]
+opt-level = 3
+[profile.dev.package.polyval]
+opt-level = 3
+[profile.dev.package.zxcvbn]
+opt-level = 3
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = 3
+strip = true
+# Keep unwinding (the default) so that zeroize-on-drop destructors run on panic.
+panic = "unwind"

@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # Weekly, so new RustSec / npm advisories surface even without code changes.
+    - cron: "0 6 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-22.04]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Linux WebView dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev libxdo-dev
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      # The shell embeds ../dist, so the UI must be built before the Rust workspace compiles.
+      - run: npm run build
+      - run: cargo test --workspace --locked
+
+  supply-chain:
+    name: Supply chain (threat 17)
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: EmbarkStudios/cargo-deny-action@v2
+        with:
+          command: check advisories bans licenses sources
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm audit --audit-level=low
+
+  no-secret-logging:
+    name: No logging of secrets (AC-S2)
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      # Any print/log call in shipped code must be reviewed and marked `// log-ok: <reason>`.
+      - run: |
+          if grep -rnE '\b(e?print(ln)?|dbg)!|\b(log|tracing)::|console\.(log|debug|info|warn|error|trace)' \
+               crates/*/src src-tauri/src ui/src | grep -v '// log-ok:'; then
+            echo "::error::Unreviewed logging call found (AC-S2). Remove it or mark it '// log-ok: <reason>'."
+            exit 1
+          fi
+
+  codeql:
+    name: CodeQL (${{ matrix.language }})
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [javascript-typescript, rust]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: none
+      - uses: github/codeql-action/analyze@v3

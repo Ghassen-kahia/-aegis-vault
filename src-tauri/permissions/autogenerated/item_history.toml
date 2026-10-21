@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-item-history"
+description = "Enables the item_history command without any pre-configured scope."
+commands.allow = ["item_history"]
+
+[[permission]]
+identifier = "deny-item-history"
+description = "Denies the item_history command without any pre-configured scope."
+commands.deny = ["item_history"]

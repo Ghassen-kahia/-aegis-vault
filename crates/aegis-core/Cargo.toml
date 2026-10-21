@@ -1,0 +1,34 @@
+[package]
+name = "aegis-core"
+description = "AEGIS VAULT cryptographic core: key hierarchy, encrypted vault format, generator."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+[features]
+default = []
+# Allows KDF parameters below the production floor so the test suite runs quickly.
+# NEVER enable this in the desktop application.
+insecure-test-kdf = []
+
+[dependencies]
+aes-gcm = { version = "0.10.3", features = ["zeroize"] }
+argon2 = { version = "0.5.3", default-features = false, features = ["alloc", "zeroize"] }
+hkdf = "0.12.4"
+sha2 = "0.10.8"
+rand = { version = "0.8.5", default-features = false, features = ["std", "getrandom"] }
+zeroize = { version = "1.8", features = ["derive", "alloc"] }
+subtle = "2.6"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+data-encoding = "2.6"
+uuid = { version = "1", features = ["v4", "serde"] }
+thiserror = "2"
+zxcvbn = "3"
+
+[dev-dependencies]
+# Self-dependency enables the fast test KDF for integration tests only.
+aegis-core = { path = ".", features = ["insecure-test-kdf"] }
+proptest = "1"
+tempfile = "3"
