@@ -1,0 +1,3 @@
+folder,favorite,type,name,notes,fields,reprompt,login_uri,login_username,login_password,login_totp
+Work,1,login,Example,,"PIN: 1",0,"https://a.test,https://b.test",u,p,
+,,note,Note,text,,0,,,,

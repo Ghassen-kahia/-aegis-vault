@@ -8,6 +8,8 @@
 # Never commit vault data, backups or plaintext exports from other password managers.
 *.aegisbackup
 *.csv
+# …except the fuzzers' synthetic seed inputs.
+!/fuzz/seeds/**/*.csv
 # Fuzzing output (corpora are regenerated; crash artifacts may hold hostile inputs).
 /fuzz/target
 /fuzz/corpus

@@ -1,0 +1,45 @@
+[package]
+name = "aegis-fuzz"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+# The fast test KDF lets the fuzzer reach decryption with parameters it controls.
+aegis-core = { path = "../crates/aegis-core", features = ["insecure-test-kdf"] }
+
+# Its own workspace: fuzzing needs nightly and must not affect the main build.
+[workspace]
+members = ["."]
+
+[[bin]]
+name = "vault_file"
+path = "fuzz_targets/vault_file.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "backup_file"
+path = "fuzz_targets/backup_file.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "importers"
+path = "fuzz_targets/importers.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "recovery_key"
+path = "fuzz_targets/recovery_key.rs"
+test = false
+doc = false
+bench = false

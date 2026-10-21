@@ -63,6 +63,27 @@ jobs:
             exit 1
           fi
 
+  fuzz:
+    name: Fuzz (${{ matrix.target }})
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [vault_file, backup_file, importers, recovery_key]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+      - run: cargo install cargo-fuzz --locked
+      # Short run on every push; the weekly scheduled run goes longer.
+      - run: |
+          secs=$([ "${{ github.event_name }}" = schedule ] && echo 3600 || echo 180)
+          cargo fuzz run ${{ matrix.target }} fuzz/corpus/${{ matrix.target }} fuzz/seeds/${{ matrix.target }} -- -max_total_time=$secs
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fuzz-crash-${{ matrix.target }}
+          path: fuzz/artifacts/${{ matrix.target }}
+
   codeql:
     name: CodeQL (${{ matrix.language }})
     runs-on: ubuntu-22.04

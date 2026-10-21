@@ -1,6 +1,8 @@
 [workspace]
 resolver = "2"
 members = ["crates/aegis-core", "src-tauri"]
+# Built separately with nightly: `cargo +nightly fuzz run <target>` (see fuzz/README.md).
+exclude = ["fuzz"]
 
 [workspace.package]
 version = "0.1.0"

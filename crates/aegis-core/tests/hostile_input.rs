@@ -143,3 +143,31 @@ proptest! {
         prop_assert!(backup.open(&guess.as_str().into()).is_err());
     }
 }
+
+/// Writes the fuzzers' starting inputs to `fuzz/seeds/`. Run after a format change:
+/// `cargo test -p aegis-core --test hostile_input -- --ignored write_fuzz_seeds`
+#[test]
+#[ignore]
+fn write_fuzz_seeds() {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../fuzz/seeds");
+    let (file, backup) = fixtures();
+    let write = |target: &str, name: &str, bytes: &[u8]| {
+        let dir = root.join(target);
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(dir.join(name), bytes).unwrap();
+    };
+    write("vault_file", "valid.json", &file.to_json().unwrap());
+    write("backup_file", "valid.json", &backup.to_json().unwrap());
+    // importers: first byte selects the source (index into the fuzz target's SOURCES).
+    let samples: [(u8, &str, &str); 4] = [
+        (0, "bitwarden.json", r#"{"encrypted":false,"folders":[{"id":"f","name":"Work"}],"items":[{"type":1,"name":"Example","folderId":"f","login":{"username":"u","password":"p","uris":[{"uri":"https://example.test"}]},"fields":[{"name":"PIN","value":"1","type":1}],"passwordHistory":[{"lastUsedDate":"2024-01-02T03:04:05.000Z","password":"old"}]},{"type":3,"name":"Card","card":{"number":"4111","expMonth":"1","expYear":"2030"}}]}"#),
+        (1, "bitwarden.csv", "folder,favorite,type,name,notes,fields,reprompt,login_uri,login_username,login_password,login_totp\nWork,1,login,Example,,\"PIN: 1\",0,\"https://a.test,https://b.test\",u,p,\n,,note,Note,text,,0,,,,\n"),
+        (2, "browser.csv", "name,url,username,password,note\nexample.test,https://example.test,u,\"p,\"\"q\",n\n"),
+        (3, "1password.csv", "Title,Url,Username,Password,OTPAuth,Favorite,Archived,Tags,Notes\nBank,https://bank.test,u,p,otpauth://x,true,false,a;b,\n"),
+    ];
+    for (pick, name, text) in samples {
+        write("importers", name, &[&[pick], text.as_bytes()].concat());
+    }
+    let (_, rk) = UnlockedVault::create(&PW.into(), KdfParams::insecure_for_tests()).unwrap();
+    write("recovery_key", "valid.txt", rk.encode().expose().as_bytes());
+}

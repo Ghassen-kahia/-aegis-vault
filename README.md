@@ -12,7 +12,8 @@ A local-first password manager. Phase 1: a single encrypted vault file on this d
 | `crates/aegis-core` | All cryptography, the vault format, generator, strength checks. No UI, no I/O beyond the vault file. |
 | `src-tauri` | Desktop shell (Tauri 2). Holds the unlocked vault, enforces auto-lock, back-off and clipboard clearing, exposes a narrow command set to the UI. |
 | `ui` | React + TypeScript UI. Never receives key material; secret values only on explicit reveal or edit. |
-| `docs` | Cryptographic design, threat model, security requirements. |
+| `docs` | Cryptographic design, threat model, security requirements, audit scope. |
+| `fuzz` | `cargo-fuzz` targets for every parser of untrusted input. |
 
 ## Develop
 
@@ -24,6 +25,9 @@ npm run tauri dev          # UI with hot reload + debug Rust build
 cargo test --workspace     # core + shell tests (fast test KDF via the insecure-test-kdf feature)
 npm run typecheck
 ```
+
+Fuzzing (nightly toolchain) is described in [fuzz/README.md](fuzz/README.md). Auditors: start with
+[docs/AUDIT_SCOPE.md](docs/AUDIT_SCOPE.md).
 
 Build an installer:
 

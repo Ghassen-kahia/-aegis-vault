@@ -10,6 +10,7 @@ in it. The design and its known limitations are documented in:
 * [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md): what is and isn't protected, and the known limitations (L-1 … L-11)
 * [docs/CRYPTOGRAPHY.md](docs/CRYPTOGRAPHY.md): key hierarchy, file formats, test vectors
 * [docs/SECURITY_REQUIREMENTS.md](docs/SECURITY_REQUIREMENTS.md): acceptance criteria and how each is verified
+* [docs/AUDIT_SCOPE.md](docs/AUDIT_SCOPE.md): what an independent audit should cover, and how to build and test
 
 ## Reporting a vulnerability
 
