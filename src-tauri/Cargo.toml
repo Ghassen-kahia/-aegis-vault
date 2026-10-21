@@ -29,4 +29,4 @@ tauri-plugin-single-instance = "2.5"
 windows-sys = { version = "0.61", features = ["Win32_System_StationsAndDesktops"] }
 # Same versions Tauri already uses; for WebView2 settings Tauri does not expose (webview.rs).
 webview2-com = "0.39"
-windows-core = "0.62"
+windows-core = "0.100"
