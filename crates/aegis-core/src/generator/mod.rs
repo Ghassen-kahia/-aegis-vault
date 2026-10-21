@@ -1,9 +1,8 @@
 //! Password and passphrase generator using only the OS CSPRNG.
-//! Sampling uses `gen_range` / `choose` (rejection sampling, no modulo bias).
+//! Sampling uses `random_range` / `choose` (rejection sampling, no modulo bias).
 
-use rand::rngs::OsRng;
-use rand::seq::SliceRandom;
-use rand::Rng;
+use rand::seq::{IndexedRandom, SliceRandom};
+use rand::RngExt;
 use serde::{Deserialize, Serialize};
 
 use crate::error::{Error, Result};
@@ -57,11 +56,11 @@ pub fn generate_password(o: &PasswordOptions) -> Result<Generated> {
         return Err(Error::Validation("select at least one character set".into()));
     }
     let alphabet: Vec<char> = classes.concat();
-    let mut rng = OsRng;
+    let mut rng = crate::rng::os_rng();
     // One character from each selected class, the rest from the full alphabet, then shuffle.
     let mut chars: Vec<char> = classes.iter().filter_map(|c| c.choose(&mut rng).copied()).collect();
     while chars.len() < o.length {
-        chars.push(alphabet[rng.gen_range(0..alphabet.len())]);
+        chars.push(alphabet[rng.random_range(0..alphabet.len())]);
     }
     chars.shuffle(&mut rng);
     let value = SecretString::new(chars.iter().collect());
@@ -74,10 +73,10 @@ pub fn generate_passphrase(o: &PassphraseOptions) -> Result<Generated> {
         return Err(Error::Validation("use 3–20 words and a separator of at most 3 characters".into()));
     }
     let list = words();
-    let mut rng = OsRng;
+    let mut rng = crate::rng::os_rng();
     let mut picked: Vec<String> = (0..o.words)
         .map(|_| {
-            let w = list[rng.gen_range(0..list.len())];
+            let w = list[rng.random_range(0..list.len())];
             if o.capitalize {
                 let mut c = w.chars();
                 c.next().map(|f| f.to_uppercase().chain(c).collect()).unwrap_or_default()
@@ -88,8 +87,8 @@ pub fn generate_passphrase(o: &PassphraseOptions) -> Result<Generated> {
         .collect();
     let mut entropy = o.words as f64 * (list.len() as f64).log2();
     if o.include_number {
-        let i = rng.gen_range(0..picked.len());
-        picked[i].push(char::from(b'0' + rng.gen_range(0..10u8)));
+        let i = rng.random_range(0..picked.len());
+        picked[i].push(char::from(b'0' + rng.random_range(0..10u8)));
         entropy += 10f64.log2() + (o.words as f64).log2();
     }
     let value = SecretString::new(picked.join(&o.separator));

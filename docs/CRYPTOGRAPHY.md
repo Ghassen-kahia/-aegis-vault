@@ -161,12 +161,15 @@ mechanism, and it reduces nothing, because RK alone has 256 bits of entropy.
 
 ## 11. Library versions
 
-`aes-gcm 0.10`, `argon2 0.5`, `hkdf 0.12`, `sha2 0.10`, `rand 0.8`/`rand_core 0.6` (OsRng),
-`zeroize 1`, `subtle 2`. These are mature, widely deployed releases that share one
-`digest`/`crypto-common` generation. Upgrading to the next RustCrypto generation (`aes-gcm 0.11`,
-`argon2 0.6`, `rand 0.10`) is tracked as a Phase 4 item. Known-answer tests (§12) must pass
-unchanged after any upgrade.
+`aes-gcm 0.11`, `argon2 0.6`, `hkdf 0.13`, `sha2 0.11`, `rand 0.10` (`SysRng`, i.e. `getrandom`),
+`zeroize 1`, `subtle 2`: the current RustCrypto generation, sharing one `digest`/`crypto-common`
+version. All randomness goes through `crates/aegis-core/src/rng.rs`, which wraps the OS CSPRNG
+only; an OS RNG failure is returned as an error where the caller can return one, and aborts
+otherwise.
 
+The upgrade from the previous generation (`aes-gcm 0.10`, `argon2 0.5`, `hkdf 0.12`, `sha2 0.10`,
+`rand 0.8`) changed no test vector. Files written before it are kept as fixtures
+(`crates/aegis-core/tests/fixtures/`) and must keep opening after any future upgrade (§12).
 ## 12. Test vectors
 
 * AES-256-GCM: McGrew–Viega GCM spec test cases 13 and 14.
@@ -174,6 +177,8 @@ unchanged after any upgrade.
 * Argon2id: RFC 9106 §5.3 test vector.
 * Format regression vectors: fixed key/nonce encryption of a fixed item, so that the on-disk
   format can't change silently.
+* Compatibility fixtures: a vault and a backup written by v0.1.0 must still open
+  (`tests/compatibility.rs`).
 * Backup tamper tests: changing any header field (`backup_id`, `created_at`, any KDF parameter or
   salt) or any ciphertext byte makes the backup fail to open.
 

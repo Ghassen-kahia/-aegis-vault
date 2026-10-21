@@ -22,6 +22,7 @@ pub mod import;
 pub mod item;
 pub mod kdf;
 pub mod recovery;
+pub mod rng;
 pub mod secret;
 pub mod storage;
 pub mod strength;

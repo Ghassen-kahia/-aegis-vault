@@ -4,10 +4,10 @@
 
 | Concern | Choice | Why |
 |---------|--------|-----|
-| AEAD | `aes-gcm` 0.10 (RustCrypto) | Pure Rust, constant-time with AES-NI/CLMUL, NCC Group audit (2020), very widely deployed |
-| Password KDF | `argon2` 0.5 (RustCrypto) | RFC 9106 Argon2id, maintained by RustCrypto |
-| KDF (key separation) | `hkdf` 0.12 + `sha2` 0.10 | RFC 5869 reference-quality implementation |
-| Randomness | `rand_core::OsRng` → `getrandom` | Direct OS CSPRNG (`BCryptGenRandom` / `getrandom(2)` / `SecRandomCopyBytes`) |
+| AEAD | `aes-gcm` 0.11 (RustCrypto) | Pure Rust, constant-time with AES-NI/CLMUL, NCC Group audit of an earlier version (2020), very widely deployed |
+| Password KDF | `argon2` 0.6 (RustCrypto) | RFC 9106 Argon2id, maintained by RustCrypto |
+| KDF (key separation) | `hkdf` 0.13 + `sha2` 0.11 | RFC 5869 reference-quality implementation |
+| Randomness | `rand::rngs::SysRng` → `getrandom`, only via `rng.rs` | Direct OS CSPRNG (`BCryptGenRandom` / `getrandom(2)` / `SecRandomCopyBytes`) |
 | Memory hygiene | `zeroize`, `subtle` | Wipe secrets on drop; constant-time comparison |
 | Encoding | `data-encoding` | Strict base64/base32, no custom codecs |
 | Strength estimation | `zxcvbn` | Port of Dropbox's zxcvbn, pattern-aware |
@@ -29,7 +29,7 @@ Each criterion has an automated test (T) or a manual / documented check (M).
 - [x] **AC-C5 (T)** Swapping item ciphertexts between IDs, deleting an item record, injecting a record from another vault, or duplicating a record causes unlock to fail.
 - [x] **AC-C6 (T)** KDF parameters below the floor or above the ceiling are refused before derivation.
 - [x] **AC-C7 (T)** Unknown format versions and unknown JSON fields are refused.
-- [x] **AC-C8 (T)** Format regression vectors stay stable across builds.
+- [x] **AC-C8 (T)** Format regression vectors stay stable across builds, and a vault and backup written by v0.1.0 still open.
 - [x] **AC-C9 (T)** After a password change the old password no longer unlocks and the Recovery Key still does; after Vault Key rotation the old Recovery Key no longer unlocks.
 
 ### Secret handling

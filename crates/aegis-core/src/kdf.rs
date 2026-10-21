@@ -3,8 +3,6 @@
 use std::time::{Duration, Instant};
 
 use argon2::{Algorithm, Argon2, Params, Version};
-use rand::rngs::OsRng;
-use rand::RngCore;
 use serde::{Deserialize, Serialize};
 
 use crate::encoding::b64;
@@ -63,7 +61,7 @@ impl KdfParams {
     /// New parameters with a fresh random salt.
     pub fn new(m_cost_kib: u32, t_cost: u32, p_cost: u32) -> Result<Self> {
         let mut salt = vec![0u8; SALT_LEN];
-        OsRng.fill_bytes(&mut salt);
+        crate::rng::fill(&mut salt)?;
         let p = Self {
             alg: KdfAlg::Argon2id,
             version: ARGON2_VERSION,
@@ -97,7 +95,7 @@ impl KdfParams {
     #[cfg(any(test, feature = "insecure-test-kdf"))]
     pub fn insecure_for_tests() -> Self {
         let mut salt = vec![0u8; SALT_LEN];
-        OsRng.fill_bytes(&mut salt);
+        rand::Rng::fill_bytes(&mut crate::rng::os_rng(), &mut salt);
         Self {
             alg: KdfAlg::Argon2id,
             version: ARGON2_VERSION,

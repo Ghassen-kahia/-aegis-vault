@@ -6,8 +6,6 @@
 use aes_gcm::aead::{Aead, KeyInit, Payload};
 use aes_gcm::{Aes256Gcm, Nonce};
 use hkdf::Hkdf;
-use rand::rngs::OsRng;
-use rand::RngCore;
 use sha2::{Digest, Sha256};
 use uuid::Uuid;
 use zeroize::Zeroizing;
@@ -40,7 +38,7 @@ pub struct Sealed {
 /// Encrypts `plaintext` under `key` with a fresh random 96-bit nonce.
 pub fn seal(key: &SecretKey, aad: &[u8], plaintext: &[u8]) -> Result<Sealed> {
     let mut nonce = [0u8; NONCE_LEN];
-    OsRng.fill_bytes(&mut nonce);
+    crate::rng::fill(&mut nonce)?;
     seal_with_nonce(key, &nonce, aad, plaintext)
 }
 
@@ -54,7 +52,7 @@ pub(crate) fn seal_with_nonce(
 ) -> Result<Sealed> {
     let cipher = Aes256Gcm::new_from_slice(key.expose()).map_err(|_| Error::Crypto)?;
     let ciphertext = cipher
-        .encrypt(Nonce::from_slice(nonce), Payload { msg: plaintext, aad })
+        .encrypt(&Nonce::from(*nonce), Payload { msg: plaintext, aad })
         .map_err(|_| Error::Crypto)?;
     Ok(Sealed {
         nonce: *nonce,
@@ -68,9 +66,10 @@ pub fn open(key: &SecretKey, aad: &[u8], nonce: &[u8], ciphertext: &[u8]) -> Res
     if nonce.len() != NONCE_LEN || ciphertext.len() < TAG_LEN {
         return Err(Error::Crypto);
     }
+    let nonce = Nonce::try_from(nonce).map_err(|_| Error::Crypto)?;
     let cipher = Aes256Gcm::new_from_slice(key.expose()).map_err(|_| Error::Crypto)?;
     cipher
-        .decrypt(Nonce::from_slice(nonce), Payload { msg: ciphertext, aad })
+        .decrypt(&nonce, Payload { msg: ciphertext, aad })
         .map(Zeroizing::new)
         .map_err(|_| Error::Crypto)
 }
