@@ -20,7 +20,7 @@ jobs:
         os: [windows-latest, ubuntu-22.04]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Linux WebView dependencies
         if: runner.os == 'Linux'
         run: |
@@ -41,7 +41,7 @@ jobs:
     name: Supply chain (threat 17)
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: EmbarkStudios/cargo-deny-action@v2
         with:
           command: check advisories bans licenses sources
@@ -54,7 +54,7 @@ jobs:
     name: No logging of secrets (AC-S2)
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # Any print/log call in shipped code must be reviewed and marked `// log-ok: <reason>`.
       - run: |
           if grep -rnE '\b(e?print(ln)?|dbg)!|\b(log|tracing)::|console\.(log|debug|info|warn|error|trace)' \
@@ -71,7 +71,7 @@ jobs:
       matrix:
         target: [vault_file, backup_file, importers, recovery_key]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@nightly
       - run: cargo install cargo-fuzz --locked
       # Short run on every push; the weekly scheduled run goes longer.
@@ -95,7 +95,7 @@ jobs:
       matrix:
         language: [javascript-typescript, rust]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
