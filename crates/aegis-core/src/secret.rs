@@ -2,8 +2,7 @@
 
 use std::fmt;
 
-use rand::rngs::OsRng;
-use rand::RngCore;
+use rand::Rng;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use subtle::ConstantTimeEq;
 use zeroize::{Zeroize, ZeroizeOnDrop, Zeroizing};
@@ -19,7 +18,7 @@ impl SecretKey {
     /// A fresh key from the operating system CSPRNG.
     pub fn generate() -> Self {
         let mut key = Self::zeroed();
-        OsRng.fill_bytes(key.0.as_mut());
+        crate::rng::os_rng().fill_bytes(key.0.as_mut());
         key
     }
 

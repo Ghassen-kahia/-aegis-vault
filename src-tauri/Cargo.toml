@@ -16,7 +16,7 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 uuid = { version = "1", features = ["serde"] }
 zeroize = "1.8"
-sha2 = "0.10.8"
+sha2 = "0.11"
 subtle = "2.6"
 arboard = { version = "3.4", default-features = false }
 # Native file dialogs, called from Rust only; the WebView is granted no dialog permissions.

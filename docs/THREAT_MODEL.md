@@ -98,7 +98,7 @@ described as audited or production-secure until it has been.
 
 1. The OS CSPRNG is sound.
 2. RustCrypto `aes-gcm`, `argon2`, `hkdf`, `sha2` are correct implementations (they are widely
-   used, and `aes-gcm` was independently audited by NCC Group in 2020; known-answer tests in our suite
+   used, and an earlier version of `aes-gcm` was independently audited by NCC Group in 2020; known-answer tests in our suite
    check how we wire them up).
 3. The device is not compromised while the vault is unlocked.
 4. The application binary the user runs is the genuine one (code signing is a Phase 5 item).
