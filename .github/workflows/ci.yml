@@ -77,6 +77,8 @@ jobs:
       # Short run on every push; the weekly scheduled run goes longer.
       - run: |
           secs=$([ "${{ github.event_name }}" = schedule ] && echo 3600 || echo 180)
+          # The corpus is git-ignored, and libFuzzer refuses to start if its directory is missing.
+          mkdir -p fuzz/corpus/${{ matrix.target }}
           cargo fuzz run ${{ matrix.target }} fuzz/corpus/${{ matrix.target }} fuzz/seeds/${{ matrix.target }} -- -max_total_time=$secs
       - if: failure()
         uses: actions/upload-artifact@v4

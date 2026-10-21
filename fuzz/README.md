@@ -20,7 +20,8 @@ Argon2 parameters reach decryption. The desktop app never enables it.
 rustup toolchain install nightly
 cargo install cargo-fuzz
 
-# from the repository root
+# from the repository root (libFuzzer needs the corpus directory to exist)
+mkdir -p fuzz/corpus/importers
 cargo +nightly fuzz run importers fuzz/corpus/importers fuzz/seeds/importers -- -max_total_time=600
 ```
 
