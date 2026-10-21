@@ -1,15 +1,45 @@
 # Threat 17: weekly update PRs for Rust, npm and the CI actions themselves.
+# Related crates are grouped so they are upgraded and reviewed together.
 version: 2
 updates:
   - package-ecosystem: cargo
     directory: /
     schedule:
       interval: weekly
+    groups:
+      # Cryptographic primitives share one digest/cipher trait generation and must move
+      # together; known-answer tests (CRYPTOGRAPHY §12) must pass unchanged.
+      rustcrypto:
+        patterns: [aes-gcm, argon2, hkdf, sha2, rand, rand_core, zeroize, subtle, data-encoding]
+      tauri:
+        patterns: [tauri, tauri-*]
+      everything-else:
+        patterns: ["*"]
+        update-types: [minor, patch]
+    ignore:
+      # Must match the versions Tauri itself uses (src-tauri/src/{webview,os_lock}.rs);
+      # they move only together with a Tauri upgrade.
+      - dependency-name: windows-core
+      - dependency-name: windows-sys
+      - dependency-name: webview2-com
+
   - package-ecosystem: npm
     directory: /
     schedule:
       interval: weekly
+    groups:
+      react:
+        patterns: [react, react-dom, "@types/react", "@types/react-dom"]
+      tooling:
+        patterns: [vite, "@vitejs/*", typescript]
+      everything-else:
+        patterns: ["*"]
+        update-types: [minor, patch]
+
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]
